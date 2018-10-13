@@ -1,0 +1,61 @@
+---
+title: "Week 2 Project Leaflet"
+author: "Sean"
+date: "October 12, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+#Introduction
+
+This project will create a web page using R Markdown that features a map created with Leaflet.
+
+The purpose of this assignment is to illustrate all mountains in Alberta, Canada. The data can be downloaded here: [LINK](https://www.nrcan.gc.ca/earth-sciences/geography/place-names/data/9245)
+
+```{r message = FALSE}
+library(leaflet)
+library(dplyr)
+mount <- read.csv(paste0("F:/Courses/Coursera/John_Hopkins_University_Data_Science", "/9_Developing_Data_Products/Week 2/Project/ab_geo.csv"))
+colnames(mount)[colnames(mount) == "Geographical.Name"] <- "Name"
+colnames(mount)[colnames(mount) == "Generic.Term"] <- "Category"
+colnames(mount)[colnames(mount) == "Latitude"] <- "Lat"
+colnames(mount)[colnames(mount) == "Longitude"] <- "Long"
+mount2 <- select(mount, Name, Category, Lat, Long)
+mount3 <- mount2[mount2$Category %in% c("Mountain", "Mountains"),]
+mount3 <- mutate(mount3,
+                 Name = as.character(mount3$Name))
+```
+
+__This is a list of all mountains in Alberta, you can browse it on the website, It will be better if Natural Resources Canada adding the elevation info.__
+
+```{r}
+Icon <- makeIcon(
+        iconUrl = "https://image.flaticon.com/icons/svg/147/147331.svg",
+        iconWidth = 36,
+        iconHeight = 36*1.1,
+        iconAnchorX = 36/2,
+        iconAnchorY = 32
+)
+mount3 %>%
+        leaflet() %>%
+        addTiles() %>%
+        addMarkers(lat = mount3$Lat,
+                   lng = mount3$Long,
+                   icon = Icon,
+                   clusterOptions = markerClusterOptions())
+```
+
+#Name List of Mountains on Map
+__This will be super long list.__
+```{r message = FALSE}
+library(knitr)
+mount3 <- arrange(mount3, Name)
+mountlist <- cbind(1:nrow(mount3),
+                   mount3$Name)
+kable(mountlist,
+      col.names = c("", "Mountains"))
+```
+
